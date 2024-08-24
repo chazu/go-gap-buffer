@@ -1,3 +1,3 @@
-module github.com/neelanjan00/gap-buffer
+module github.com/chazu/go-gap-buffer
 
-go 1.17
+go 1.22

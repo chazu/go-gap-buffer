@@ -1,5 +1,7 @@
 package gapbuffer
 
+const newline = '\n'
+
 type GapBuffer struct {
 	buffer     []rune
 	preGapLen  int
@@ -99,10 +101,15 @@ func (g *GapBuffer) Backspace() {
 // growGap creates a gap of length equal to the buffer length to be created between preGap and postGap
 func (g *GapBuffer) growGap() {
 
+	toGrow := len(g.buffer)
+	if toGrow == 0 {
+		toGrow = 1
+	}
+
 	// create a new rune slice of length equal to twice the buffer length and copy the
 	// preGap elements and the postGap elements in it such that a gap of length equal
 	// to the buffer length is created between them before assigning it as the buffer
-	newBuffer := make([]rune, len(g.buffer)*2)
+	newBuffer := make([]rune, toGrow*2)
 
 	copy(newBuffer, g.buffer[:g.preGapLen])
 	copy(newBuffer[g.postGapStart()+len(g.buffer):], g.buffer[g.postGapStart():])

@@ -1,3 +1,7 @@
+# Fork of neelanjan00's golang gap buffer implementation
+
+8/2024 - Forking this to try and add line-handling to it so's I can slap together a mini text editor.
+
 # Gap Buffer Implementation in Go
 [![Go Reference](https://pkg.go.dev/badge/github.com/neelanjan00/gap-buffer.svg)](https://pkg.go.dev/github.com/neelanjan00/gap-buffer)
 
@@ -94,4 +98,4 @@ func main() {
 }
 ```
 
-The GIF example shown above is created using [skeeto/gap-buffer-animator](https://github.com/skeeto/gap-buffer-animator) 
+The GIF example shown above is created using [skeeto/gap-buffer-animator](https://github.com/skeeto/gap-buffer-animator)
