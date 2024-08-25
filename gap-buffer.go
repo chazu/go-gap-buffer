@@ -1,6 +1,10 @@
 package gapbuffer
 
-const newline = '\n'
+import (
+	"strings"
+)
+
+const NEWLINE = '\n'
 
 type GapBuffer struct {
 	buffer     []rune
@@ -24,6 +28,31 @@ func (g *GapBuffer) gapLen() int {
 func (g *GapBuffer) postGapStart() int {
 
 	return len(g.buffer) - g.postGapLen
+}
+
+// Get the string as lines, split on newlines
+func (g *GapBuffer) lines() []string {
+	return strings.Split(g.GetString(), string(NEWLINE))
+}
+
+func (g *GapBuffer) GetCursorIndex() int {
+	return g.preGapLen
+}
+
+func (g *GapBuffer) GetCursorXY() (int, int) {
+	lines := g.lines()
+	cursorIndex := g.GetCursorIndex()
+	line := 0
+	for i, l := range lines {
+		if cursorIndex <= len(l) {
+
+			line = i
+			break
+		}
+		// Remove extra 1 for newline character
+		cursorIndex -= len(l) + 1
+	}
+	return cursorIndex, line
 }
 
 // SetString initialises the buffer with the characters of the input string
@@ -61,7 +90,7 @@ func (g *GapBuffer) MoveCursorRight() {
 }
 
 // MoveCursorLeft moves the cursor position to the left by one step
-func (g *GapBuffer) MoveCursorLeft() {
+func (g *GapBuffer) MoveCursorLeft(distance int) {
 
 	// check if the cursor is at the start of the buffer
 	if g.preGapLen == 0 {
@@ -69,9 +98,27 @@ func (g *GapBuffer) MoveCursorLeft() {
 	}
 
 	// copy the elements from the front to the rear of the gap to shift the gap towards left
-	g.buffer[g.postGapStart()-1] = g.buffer[g.preGapLen-1]
-	g.preGapLen--
-	g.postGapLen++
+	g.buffer[g.postGapStart()-distance] = g.buffer[g.preGapLen-distance]
+	g.preGapLen -= distance
+	g.postGapLen += distance
+}
+
+// TODO make this take distance just like MoveCursorLeft
+func (g *GapBuffer) MoveCursorUp() {
+	x, y := g.GetCursorXY()
+	// Get characters before cursor on current line
+	currentLine := g.lines()[y]
+	currentLineChars := currentLine[:x]
+	// Get characters after cursor on previous line
+	previousLine := g.lines()[y-1]
+	previousLineChars := previousLine[x:]
+
+	// Calculate how far back to move the cursor index - add one for the newline character
+	moveBack := len(currentLineChars) + len(previousLineChars) + 1
+
+	for i := 0; i < moveBack; i++ {
+		g.MoveCursorLeft(1)
+	}
 }
 
 // Delete deletes a character immediately after the cursor
