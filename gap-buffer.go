@@ -103,21 +103,50 @@ func (g *GapBuffer) MoveCursorLeft(distance int) {
 	g.postGapLen += distance
 }
 
-// TODO make this take distance just like MoveCursorLeft
-func (g *GapBuffer) MoveCursorUp() {
-	x, y := g.GetCursorXY()
-	// Get characters before cursor on current line
-	currentLine := g.lines()[y]
-	currentLineChars := currentLine[:x]
-	// Get characters after cursor on previous line
-	previousLine := g.lines()[y-1]
+// Calculate the distance to move back when moving up a line
+func distanceToMoveBack(x int, y int, previousLine string) int {
+
+	// Chars on previous line after the current column
 	previousLineChars := previousLine[x:]
 
-	// Calculate how far back to move the cursor index - add one for the newline character
-	moveBack := len(currentLineChars) + len(previousLineChars) + 1
+	return x + len(previousLineChars) + 1
+}
 
-	for i := 0; i < moveBack; i++ {
-		g.MoveCursorLeft(1)
+// Calculate the distance to move forward when moving up a line
+func distanceToMoveForward(x int, y int, thisLine string) int {
+
+	// Chars on this line after the current column
+	thisLineChars := thisLine[x:]
+
+	return x + len(thisLineChars) + 1
+}
+
+func (g *GapBuffer) MoveCursorUp(distance int) {
+	x, y := g.GetCursorXY()
+
+	for i := 0; i < distance; i += 1 {
+		// Get characters after cursor on previous line
+		previousLine := g.lines()[y-1]
+
+		// Calculate how far back to move the cursor index - add one for the newline character
+		moveBack := distanceToMoveBack(x, y, previousLine)
+		g.MoveCursorLeft(moveBack)
+
+		// decrement y for next go-round
+		y--
+	}
+}
+
+func (g *GapBuffer) MoveCursorDown(distance int) {
+	x, y := g.GetCursorXY()
+
+	for i := 0; i < distance; i += 1 {
+		// Calculate how far back to move the cursor index - add one for the newline character
+		moveBack := distanceToMoveBack(x, y, g.lines()[y])
+		g.MoveCursorLeft(moveBack)
+
+		// decrement y for next go-round
+		y--
 	}
 }
 
